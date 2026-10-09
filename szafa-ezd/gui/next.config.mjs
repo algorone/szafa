@@ -3,6 +3,7 @@ import remarkGfm from 'remark-gfm'
 
 // 1. Inicjalizacja wtyczki MDX
 const withMDX = createMDX({
+  extension: /\.(md|mdx)$/,
   options: {
     remarkPlugins: [remarkGfm],
     rehypePlugins: [],
