@@ -1,0 +1,7 @@
+indeks-ezd/.mvn/*
+indeks-ezd/target/*
+repozytorium-ezd/src/main/resources/application.properties
+szafa-ezd/gui/public/pdfjs-dist/*
+indeks-ezd/src/main/resources/application.properties
+repozytorium-ezd/.mvn/*
+szafa-ezd/gui/.env

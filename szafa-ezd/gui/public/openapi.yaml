@@ -1,0 +1,2568 @@
+openapi: 3.0.3
+servers:
+  - url: http://HOST_NAME/ezd/api
+  - url: https://HOST_NAME/ezd/api
+info:
+  title: EZD API
+  version: 1.0.1
+  description: |
+    <p>
+    Specyfikacja API EZD <br> 2026 @ Algor informatyzacja Przesiębiorstw Sp. z o.o.
+    </p>
+
+tags:
+  - name: Agregaty
+    description: Obsluga zagregowanych danych
+  - name: Indeksy
+    description: Obsługa indeksów
+  - name: Dokumenty
+    description: Obsługa dokumentow w repozytorium dokumentów eletronicznych
+  - name: Struktura
+    description: Ogranizacja szafy
+  - name: Klasyfikacje
+    description: Obsługa klasyfikacji spraw
+  - name: Sprawy
+    description: Obsługa metadnych akt i spraw
+  - name: Akta
+    description: Obsługa metadnych akt
+  - name: Negaty
+    description: Obsługa metryk do akt nie stanowiacych sprawy
+
+paths:
+  /agregaty/klucz:
+    post: #TODO query
+      tags: 
+      - Agregaty
+      summary: Zwraca zagregowana dane z klucza danych
+      operationId: pobierz_agregat
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KluczDane' 
+      responses:
+        200:
+          description: Operacja wykonana poprawnie
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Agregat' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'  
+  /agregaty/export:
+    post: #TODO query
+      tags: 
+      - Agregaty
+      summary: Zleca przygotowanie exportu danych do dokumentu pod zwracanym URI 
+      operationId: przygotuj_export
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              AnyValue: {}
+      responses:
+        200:
+          description: Zwraca URI do dokumentu z danymi eksporty
+          content:
+            text/plain:
+              schema:
+                type: string
+                format: uri
+                example: '/dokumnty/12233'
+        400:
+          $ref: '#/components/responses/ErrorResponse'  
+  /indeksy/{kod}:
+    parameters:
+      - name: kod
+        in: path
+        description: Identyfikator indeksu.
+        required: true
+        schema:
+          type: string 
+    get:
+      tags:
+      - Indeksy
+      operationId: pobierz_indeks
+      summary: Wyszukuje dane indeksu
+      parameters:
+        - $ref: "#/components/parameters/limit"
+        - $ref: "#/components/parameters/offset"
+        - $ref: "#/components/parameters/term"
+      responses:
+        200:
+          description: lista kluczy
+          headers:
+            x-result-count:
+              schema:
+                type: integer
+            x-requested-limit:
+              schema:
+                type: integer
+            x-requested-offset:
+              schema:
+                type: integer                  
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Klucz' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+
+  /indeksy/{kod}/{klucz}:
+    parameters:
+      - name: kod
+        in: path
+        description: Identyfikator indeksu.
+        required: true
+        schema:
+          type: string 
+      - name: klucz
+        in: path
+        description: Klucz indeksu.
+        required: true
+        schema:
+          type: string  
+    get:
+      tags:
+      - Indeksy
+      operationId: pobierz_dane
+      summary: Zwraca dane indeksu o zadanym kluczu
+      responses:
+        200:
+          description: Operacja wykonana poprawnie
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KluczDane' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+    post:
+      tags:
+      - Indeksy    
+      summary: Dodaje klucz indeksu
+      operationId: dodaj_klucz
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KluczDane' 
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'        
+    patch:
+      tags:
+      - Indeksy    
+      summary: Aktualizuje hasło klucza
+      operationId: aktualizuj_haslo
+      description: Aktualizue hasło indeksu
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Klucz' 
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'      
+    delete:
+      tags:
+      - Indeksy    
+      summary: Usuwa dane indeksu pod zadanym kluczem
+      operationId: usun_klucz
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+  /indeksy/{kod}/{klucz}/sprawy:
+    parameters:
+      - name: kod
+        in: path
+        description: Identyfikator indeksu.
+        required: true
+        schema:
+          type: string 
+      - name: klucz
+        in: path
+        description: Klucz indeksu.
+        required: true
+        schema:
+          type: string
+    put:
+      tags:
+      - Indeksy    
+      summary: Wstawia sprawy pod klucz
+      operationId: wstaw_sprawy_pod_klucz
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+  /indeksy/{kod}/{klucz}/sprawy/{znak}:
+    parameters:
+      - name: kod
+        in: path
+        description: Identyfikator indeksu.
+        required: true
+        schema:
+          type: string 
+      - name: klucz
+        in: path
+        description: Klucz indeksu.
+        required: true
+        schema:
+          type: string  
+      - name: znak
+        in: path
+        description: znak sprawy.
+        required: true
+        schema:
+          type: string  
+    post:
+      tags:
+      - Indeksy
+      summary: Dodaje sprawe pod klucz
+      operationId: dodaj_pozycje_sprawy
+      responses:
+        200:
+          description: Operacja wykonana poprawnie
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessInfo' 
+        400:
+          $ref: '#/components/responses/ErrorResponse' 
+    delete:
+      tags:
+      - Indeksy
+      summary: Usuwa sprawe spod klucza
+      operationId: usun_pozycje_sprawy
+      responses:
+        200:
+          description: Operacja wykonana poprawnie
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessInfo' 
+        400:
+          $ref: '#/components/responses/ErrorResponse' 
+  /indeksy/{kod}/{klucz}/akta:
+    parameters:
+      - name: kod
+        in: path
+        description: Identyfikator indeksu.
+        required: true
+        schema:
+          type: string 
+      - name: klucz
+        in: path
+        description: Klucz indeksu.
+        required: true
+        schema:
+          type: string
+    put:
+      tags:
+      - Indeksy    
+      summary: Wstawia akta pod klucz
+      operationId: wstaw_akta_pod_klucz
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+  /indeksy/{kod}/{klucz}/akta/{znak}:
+    parameters:
+      - name: kod
+        in: path
+        description: Identyfikator indeksu.
+        required: true
+        schema:
+          type: string 
+      - name: klucz
+        in: path
+        description: Klucz indeksu.
+        required: true
+        schema:
+          type: string  
+      - name: znak
+        in: path
+        description: znak akt.
+        required: true
+        schema:
+          type: string  
+    post:
+      tags:
+      - Indeksy
+      summary: Dodaje akta pod klucz
+      operationId: dodaj_pozycje_akt
+      responses:
+        200:
+          description: Operacja wykonana poprawnie
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessInfo' 
+        400:
+          $ref: '#/components/responses/ErrorResponse' 
+    delete:
+      tags:
+      - Indeksy
+      summary: Usuwa akta spod klucza
+      operationId: usun_pozycje_akt
+      responses:
+        200:
+          description: Operacja wykonana poprawnie
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessInfo' 
+        400:
+          $ref: '#/components/responses/ErrorResponse' 
+  /indeksy/{kod}/{klucz}/negaty:
+    parameters:
+      - name: kod
+        in: path
+        description: Identyfikator indeksu.
+        required: true
+        schema:
+          type: string 
+      - name: klucz
+        in: path
+        description: Klucz indeksu.
+        required: true
+        schema:
+          type: string
+    put:
+      tags:
+      - Indeksy    
+      summary: Wstawia negaty pod klucz
+      operationId: wstaw_negaty_pod_klucz
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+  /indeksy/{kod}/{klucz}/negaty/{znak}:
+    parameters:
+      - name: kod
+        in: path
+        description: Identyfikator indeksu.
+        required: true
+        schema:
+          type: string 
+      - name: klucz
+        in: path
+        description: Klucz indeksu.
+        required: true
+        schema:
+          type: string  
+      - name: znak
+        in: path
+        description: znak negatu.
+        required: true
+        schema:
+          type: string  
+    post:
+      tags:
+      - Indeksy
+      summary: Dodaje negat pod klucz
+      operationId: dodaj_pozycje_negatu
+      responses:
+        200:
+          description: Operacja wykonana poprawnie
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessInfo' 
+        400:
+          $ref: '#/components/responses/ErrorResponse' 
+    delete:
+      tags:
+      - Indeksy
+      summary: Usuwa negat spod klucza
+      operationId: usun_pozycje_negatu
+      responses:
+        200:
+          description: Operacja wykonana poprawnie
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessInfo' 
+        400:
+          $ref: '#/components/responses/ErrorResponse' 
+
+  /indeksy/{kod}/{klucz}/uid/{uid}:
+    parameters:
+      - name: kod
+        in: path
+        description: Identyfikator indeksu.
+        required: true
+        schema:
+          type: string 
+      - name: klucz
+        in: path
+        description: Klucz indeksu.
+        required: true
+        schema:
+          type: string  
+      - name: uid
+        in: path
+        description: User ID.
+        required: true
+        schema:
+          type: number
+    post:
+      tags:
+      - Indeksy
+      summary: Nadaje uid
+      operationId: set_klucz_uid
+      requestBody:
+        required: false
+        content:
+           application/json:
+            schema:
+              type: string
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+          
+  /indeksy/{kod}/{klucz}/gid/{gid}:
+    parameters:
+      - name: kod
+        in: path
+        description: Identyfikator indeksu.
+        required: true
+        schema:
+          type: string 
+      - name: klucz
+        in: path
+        description: Klucz indeksu.
+        required: true
+        schema:
+          type: string  
+      - name: gid
+        in: path
+        description: User ID.
+        required: true
+        schema:
+          type: number
+    post:
+      tags:
+      - Indeksy
+      summary: Nadaje gid
+      operationId: set_klucz_gid
+      requestBody:
+        required: false
+        content:
+           application/json:
+            schema:
+              type: string
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+          
+  /indeksy/{kod}/{klucz}/inne/{id}:
+    parameters:
+      - name: kod
+        in: path
+        description: Identyfikator indeksu.
+        required: true
+        schema:
+          type: string 
+      - name: klucz
+        in: path
+        description: Klucz indeksu.
+        required: true
+        schema:
+          type: string  
+      - name: id
+        in: path
+        description: uid lub guid.
+        required: true
+        schema:
+          type: integer       
+    post:
+      tags:
+      - Indeksy
+      summary: Dodaje id do zbioru uprwnionych inne
+      operationId: dodaj_klucz_inne
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: integer
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse' 
+    delete:
+      tags:
+      - Indeksy
+      summary: Usuwa id ze zbioru uprwnionych inne
+      operationId: usunj_klucz_inne
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+  /indeksy/{kod}/{klucz}/inne:
+    parameters:
+      - name: kod
+        in: path
+        description: Identyfikator indeksu.
+        required: true
+        schema:
+          type: string 
+      - name: klucz
+        in: path
+        description: Klucz indeksu.
+        required: true
+        schema:
+          type: string  
+    delete:
+      tags:
+      - Indeksy
+      summary: usuwa wszytkiw wpisy ze zbioru uprwnionych inne
+      operationId: wyczysc_klucz_inne
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+  /indeksy/{kod}/{klucz}/info:
+    parameters:
+      - name: kod
+        in: path
+        description: Identyfikator indeksu.
+        required: true
+        schema:
+          type: string 
+      - name: klucz
+        in: path
+        description: Klucz indeksu.
+        required: true
+        schema:
+          type: string  
+    get:
+      tags:
+      - Indeksy
+      summary: Informacje techniczne
+      operationId: techniczne_indeks
+      responses:
+        200:
+          description: Operacja wykonana poprawnie
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Info'  
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+
+  /dokumenty/{guid}:
+    parameters:
+      - name: guid
+        in: path
+        description: Identyfikator dokumentu.
+        required: true
+        schema:
+          type: string  
+    get:
+      tags:
+      - Dokumenty
+      operationId: pobierz_dokument
+      summary: Zwraca dukument o zadanym guid
+      responses:
+        200:
+          description: Operacja wykonana poprawnie
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+    post:
+      tags:
+      - Dokumenty    
+      summary: Dodaje dokument do repozytorium
+      operationId: dodaj_dokument
+      requestBody:
+        required: true
+        content:
+          application/binary:
+            schema:
+              type: string
+              format: binary
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'        
+    patch:
+      tags:
+      - Dokumenty    
+      summary: Aktualizuje dokument w repozytorium
+      operationId: aktualizuj_dokument
+      description: Robi kopie aktualnego dokumentu i zapisuje pod historią
+      requestBody:
+        required: true
+        content:
+          application/binary:
+            schema:
+              type: string
+              format: binary
+      responses:
+        200:
+          description: Operacja wykonana poprawnie
+          content:
+            application/json:
+              schema:
+                type: string
+        400:
+          $ref: '#/components/responses/ErrorResponse'      
+    delete:
+      tags:
+      - Dokumenty    
+      summary: Usuwa dokument
+      operationId: usun_dokument
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+
+  /dokumenty/{guid}/info:
+    parameters:
+      - name: guid
+        in: path
+        description: Identyfikator dokumentu.
+        required: true
+        schema:
+          type: string  
+    get:
+      tags:
+      - Dokumenty
+      summary: Informacje o dokumencie
+      operationId: dokument_info
+      responses:
+        200:
+          description: Operacja wykonana poprawnie
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DokumentInfo' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'    
+ 
+  /dokumenty/{guid}/aranzacja:
+    parameters:
+      - name: guid
+        in: path
+        description: Identyfikator dokumentu.
+        required: true
+        schema:
+          type: string  
+    post:
+      tags:
+      - Dokumenty
+      summary: Dodaje informacje aranżacji o dokumentu
+      operationId: dodaj_aranzacja
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DokumentInfo/properties/aranzacja' 
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'  
+    delete:
+      tags:
+      - Dokumenty
+      summary: Usuwa informacje aranżacji o dokumentu
+      operationId: usun_aranzacja
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'      
+
+          
+  /dokumenty/{guid}/uid/{uid}:
+    parameters:
+      - name: guid
+        in: path
+        description: Identyfikator dokumentu.
+        required: true
+        schema:
+          type: string
+      - name: uid
+        in: path
+        description: User ID.
+        required: true
+        schema:
+          type: number
+    post:
+      tags:
+      - Dokumenty
+      summary: Nadaje uid
+      operationId: set_dokument_uid
+      requestBody:
+        required: false
+        content:
+           application/json:
+            schema:
+              type: string
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+          
+  /dokumenty/{guid}/gid/{gid}:
+    parameters:
+      - name: guid
+        in: path
+        description: Identyfikator dokumentu.
+        required: true
+        schema:
+          type: string    
+      - name: gid
+        in: path
+        description: User ID.
+        required: true
+        schema:
+          type: number
+    post:
+      tags:
+      - Dokumenty
+      summary: Nadaje gid
+      operationId: set_dokument_gid
+      requestBody:
+        required: false
+        content:
+           application/json:
+            schema:
+              type: string
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+          
+  /dokumenty/{guid}/inne/{id}:
+    parameters:
+      - name: guid
+        in: path
+        description: Identyfikator dokumentu.
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        description: uid lub guid.
+        required: true
+        schema:
+          type: number       
+    post:
+      tags:
+      - Dokumenty
+      summary: Dodaje id do zbioru uprwnionych inne
+      operationId: dodaj_dokument_inne
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: number
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse' 
+    delete:
+      tags:
+      - Dokumenty
+      summary: Usuwa id ze zbioru uprwnionych inne
+      operationId: usunj_dokument_inne
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+  /dokumenty/{guid}/inne:
+    parameters:
+      - name: guid
+        in: path
+        description: Identyfikator dokumentu.
+        required: true
+        schema:
+          type: string
+    delete:
+      tags:
+      - Dokumenty
+      summary: usuwa wszytkiw wpisy ze zbioru uprwnionych inne
+      operationId: wyczysc_dokument_inne
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+    
+  /dokumenty/{guid}/poprzednie:
+    parameters:
+      - name: guid
+        in: path
+        description: Identyfikator dokumentu.
+        required: true
+        schema:
+          type: string  
+    get:
+      tags:
+      - Dokumenty
+      summary: Zwraca liste z URI do porzednich wersji dokumentu
+      operationId: poprzednie_wersje
+      responses:
+        200:
+          description: Operacja wykonana poprawnie
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DokumentWersja' 
+        400:
+          $ref: '#/components/responses/ErrorResponse' 
+  /dokumenty/{guid}/poprzednie/{wersja}:
+    parameters:
+      - name: guid
+        in: path
+        description: Identyfikator dokumentu.
+        required: true
+        schema:
+          type: string  
+      - name: wersja
+        in: path
+        description: wersja dokumentu.
+        required: true
+        schema:
+          type: integer
+    get:
+      tags:
+      - Dokumenty
+      summary: Zwraca poprzednia wersje dokumentu
+      operationId: poprzednia_wersja_dokumentu
+      responses:
+        200:
+          description: Operacja wykonana poprawnie
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        400:
+          $ref: '#/components/responses/ErrorResponse' 
+  /rwa:
+    get:
+      tags:
+      - Struktura
+      operationId: lista_rwa
+      summary: Zwraca dostpene lata dla których przechowujemy RWA
+      responses:
+        200:
+          description: Linki do RWA
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: integer
+        400:
+          $ref: '#/components/responses/ErrorResponse' 
+  /rwa/{rok}:
+    parameters:
+      - name: rok
+        in: path
+        description: rok w formacie YYYY
+        required: true
+        schema:
+          type: integer  
+    get:
+      tags:
+      - Struktura
+      operationId: rwa_na_rok
+      summary: Zwraca RWA dla zadanego roku
+      responses:
+        200:
+          description: RWA
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pozycja_RWA' 
+        400:
+          $ref: '#/components/responses/ErrorResponse' 
+    post:
+      tags:
+      - Struktura
+      summary: Dodaje/modyfikuje kompletne RWA dla zadanego roku 
+      operationId: dodaj_rwa
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Pozycja_RWA' 
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+
+  /jednostka:
+    get:
+      tags:
+      - Struktura
+      operationId: lista_so
+      summary: Zwraca dostpene lata, dla których mamy strukture organizacyjną
+      responses:
+        200:
+          description: Linki do lat, dla których mamy strukture organizacyjną
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: integer
+        400:
+          $ref: '#/components/responses/ErrorResponse' 
+  /jednostka/{rok}:
+    parameters:
+      - name: rok
+        in: path
+        description: rok w formacie YYYY
+        required: true
+        schema:
+          type: integer  
+    get:
+      tags:
+      - Struktura
+      operationId: so_na_rok
+      summary: Zwraca strukture organizacyjną dla zadanego roku
+      responses:
+        200:
+          description: struktura organizacyjna jednostki
+          content:
+            text/plain:
+              schema:
+                type: string
+        400:
+          $ref: '#/components/responses/ErrorResponse' 
+    post:
+      tags:
+      - Struktura
+      summary: Dodaje/modyfikuje kompletną strukture organizacyjną dla zadanego roku 
+      operationId: dodaj_so
+      requestBody:
+        required: false
+        content:
+          text/plain:
+            schema:
+              type: string
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+
+
+  /klasyfikacje:
+    get:
+      tags:
+      - Klasyfikacje
+      operationId: pobierz_klasyfikacje
+      summary: Zwraca klasyfikacje, porządkujące sprawy w listy
+      parameters:
+        - $ref: "#/components/parameters/limit"
+        - $ref: "#/components/parameters/offset"
+        - $ref: "#/components/parameters/term"
+      responses:
+        200:
+          description: Lista kwalifikacji 
+          headers:
+            x-result-count:
+              schema:
+                type: integer
+            x-requsted-limit:
+              schema:
+                type: integer
+            x-requsted-offset:
+              schema:
+                type: integer  
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Klasyfikacja' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+    post:
+      tags:
+      - Klasyfikacje
+      summary: Dodaje klasyfiakcje
+      operationId: dodaj_klasyfikacje
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Klasyfikacja' 
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+  /klasyfikacje/{klasyfikacja}:
+    parameters:
+      - name: klasyfikacja
+        in: path
+        description: symbol klasyfikacji KOD.SYMBOL.[GRUPA].ROK
+        required: true
+        schema:
+          type: string  
+    get:
+      tags:
+      - Klasyfikacje
+      operationId: listuj_klasyfikacje
+      responses:
+        200:
+          description: Operacja wykonana poprawnie
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Klasyfikacja' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+
+  /klasyfikacje/{klasyfikacja}/numerator:
+    parameters:
+      - name: klasyfikacja
+        in: path
+        description: symbol klasyfikacji KOD.SYMBOL.[GRUPA].ROK.
+        required: true
+        schema:
+          type: string  
+    get:
+      tags:
+      - Klasyfikacje
+      operationId: kolejny_znak
+      description: Zwraca nastpeny numer sprawy i przestawia numerator klasyfikacji
+      responses:
+        200:
+          description: Kolejny wolny numer sprawy dla klasyfikacji
+          content:
+            application/json:
+              schema:
+                type: string
+        400:
+          $ref: '#/components/responses/ErrorResponse' 
+  /sprawy:
+    get:
+      tags:
+      - Sprawy
+      operationId: wyszukaj_sprawy
+      summary: Wyszukiwanie spraw
+      parameters:
+        - $ref: "#/components/parameters/limit"
+        - $ref: "#/components/parameters/offset"
+        - $ref: "#/components/parameters/term"
+      responses:
+        200:
+          description: lista spraw
+          headers:
+            x-result-count:
+              schema:
+                type: integer
+            x-requested-limit:
+              schema:
+                type: integer
+            x-requested-offset:
+              schema:
+                type: integer                  
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Sprawa' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+  /sprawy/{znak}:
+    parameters:
+      - name: znak
+        in: path
+        description: znak sprawy
+        required: true
+        schema:
+          type: string  
+    get:
+      tags:
+      - Sprawy
+      summary: Metadane sprawy
+      operationId: pobierz_sprawe
+      responses:
+        200:
+          description: Operacja wykonana poprawnie
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sprawa' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+    post:
+      tags:
+      - Sprawy
+      summary: Dodaje metadane sprawy
+      operationId: dodaj_sprawe
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Sprawa' 
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+    delete:
+      tags:
+      - Sprawy
+      summary: Usuwa metadane sprawy
+      operationId: usun_sprawe
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'  
+  /sprawy/{znak}/metryka:
+    parameters:
+      - name: znak
+        in: path
+        description: znak sprawy
+        required: true
+        schema:
+          type: string
+    get:
+      tags:
+      - Sprawy
+      summary: Metryka sprawy
+      operationId: pobierz_metryke
+      responses:
+        200:
+          description: Operacja wykonana poprawnie
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Czynnosc' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+  /sprawy/{znak}/metryka/dodaj:
+    parameters:
+      - name: znak
+        in: path
+        description: znak sprawy
+        required: true
+        schema:
+          type: string
+    post:
+      tags:
+      - Sprawy
+      summary: Dodaje wpis do metryki sprawy
+      operationId: dodaj_czynnosc
+      requestBody:
+        required: false
+        content:
+           application/json:
+            schema:
+              $ref: '#/components/schemas/Czynnosc'
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'          
+          
+  /sprawy/{znak}/akta:
+    parameters:
+      - name: znak
+        in: path
+        description: znak sprawy
+        required: true
+        schema:
+          type: string
+    get:
+      tags:
+      - Sprawy
+      summary: Lista akt przypisanych do sprawy
+      operationId: akta_sprawy
+      responses:
+        200:
+          description: Operacja wykonana poprawnie
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  anyOf:
+                  - $ref: '#/components/schemas/AktaWychodzace'
+                  - $ref: '#/components/schemas/AktaWplywajace'
+                  - $ref: '#/components/schemas/AktaPozostale'
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+  /sprawy/{znak}/info:
+    parameters:
+      - name: znak
+        in: path
+        description: znak sprawy
+        required: true
+        schema:
+          type: string
+    get:
+      tags:
+      - Sprawy
+      summary: Informacje techniczne
+      operationId: techniczne_sprawy
+      responses:
+        200:
+          description: Operacja wykonana poprawnie
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Info'  
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+  /sprawy/{znak}/uid/{uid}:
+    parameters:
+      - name: znak
+        in: path
+        description: znak sprawy
+        required: true
+        schema:
+          type: string
+      - name: uid
+        in: path
+        description: User ID.
+        required: true
+        schema:
+          type: number
+    post:
+      tags:
+      - Sprawy
+      summary: Nadaje uid
+      operationId: set_sprawa_uid
+      requestBody:
+        required: false
+        content:
+           application/json:
+            schema:
+              type: string
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+          
+  /sprawy/{znak}/gid/{gid}:
+    parameters:
+      - name: znak
+        in: path
+        description: znak sprawy
+        required: true
+        schema:
+          type: string 
+      - name: gid
+        in: path
+        description: User ID.
+        required: true
+        schema:
+          type: number
+    post:
+      tags:
+      - Sprawy
+      summary: Nadaje gid
+      operationId: set_sprawa_gid
+      requestBody:
+        required: false
+        content:
+           application/json:
+            schema:
+              type: string
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+          
+  /sprawy/{znak}/inne/{id}:
+    parameters:
+      - name: znak
+        in: path
+        description: znak sprawy
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        description: uid lub guid.
+        required: true
+        schema:
+          type: number       
+    post:
+      tags:
+      - Sprawy
+      summary: Dodaje id do zbioru uprwnionych inne
+      operationId: dodaj_sprawa_inne
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: number
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse' 
+    delete:
+      tags:
+      - Sprawy
+      summary: Usuwa id ze zbioru uprwnionych inne
+      operationId: usunj_sprawa_inne
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+  /sprawy/{znak}/inne:
+    parameters:
+      - name: znak
+        in: path
+        description: znak sprawy
+        required: true
+        schema:
+          type: string
+    delete:
+      tags:
+      - Sprawy
+      summary: usuwa wszytkiw wpisy ze zbioru uprwnionych inne
+      operationId: wyczysc_sprawa_inne
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+          
+  /akta/{znak_kancelarii}:
+    parameters:
+      - name: znak_kancelarii
+        in: path
+        description: znak kancelarii
+        required: true
+        schema:
+          type: string
+    get:
+      tags:
+      - Akta
+      operationId: pobierz_akta
+      summary: Metadane akt
+      responses:
+        200:
+          description: Operacja wykonana poprawnie
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/AktaPozostale' 
+                - $ref: '#/components/schemas/AktaWychodzace'
+                - $ref: '#/components/schemas/AktaWplywajace' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+    post:
+      tags:
+      - Akta
+      summary: Dodaje metadane aktów
+      operationId: dodaj_akta
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              oneOf:
+              - $ref: '#/components/schemas/AktaPozostale' 
+              - $ref: '#/components/schemas/AktaWychodzace'
+              - $ref: '#/components/schemas/AktaWplywajace' 
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+    delete:
+      tags:
+      - Akta
+      summary: Usuwa metadane akt
+      operationId: usun_akta
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+  /akta/{znak_kancelarii}/oznaczenia:
+    parameters:
+      - name: znak_kancelarii
+        in: path
+        description: znak kancelarii
+        required: true
+        schema:
+          type: string
+    post:
+      tags:
+      - Akta
+      summary: Dodaje oznaczenie akt numerem sprawy lub identyfikatorem negatu
+      operationId: dodaj_oznaczenie
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Oznaczenie'              
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+    delete:
+      tags:
+      - Akta
+      summary: Usuwa oznaczenie sprawy lub identyfikator negatu z akt  
+      operationId: usun_oznaczenie
+      parameters:
+      - name: znak_kancelarii
+        in: path
+        description: znak kancelarii
+        required: true
+        schema:
+          type: string
+      - in: query
+        name: typ
+        required: true
+        schema:
+          $ref: '#/components/schemas/Oznaczenie/properties/typ'
+      - in: query
+        name: znak
+        required: true
+        schema:
+          $ref: '#/components/schemas/Oznaczenie/properties/znak'
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+
+  /akta/{znak_kancelarii}/potwierdzenia:
+    parameters:
+      - name: znak_kancelarii
+        in: path
+        description: znak kancelarii
+        required: true
+        schema:
+          type: string
+    get:
+      tags:
+      - Akta
+      operationId: potwierdzenia_akt
+      summary: Lista potwierdzen powiazanych z aktem
+      responses:
+        200:
+          description: Operacja wykonana poprawnie
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Potwierdzenie'  
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+    post:
+      tags:
+      - Akta
+      summary: Dodaje metadane aktów
+      operationId: dodaj_potwierdzenie
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Potwierdzenie'  
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+          
+  /akta/{znak_kancelarii}/potwierdzenia/{id}:
+    parameters:
+      - name: znak_kancelarii
+        in: path
+        description: znak kancelarii
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        description: uid lub guid.
+        required: true
+        schema:
+          type: number    
+    delete:
+      tags:
+      - Akta
+      operationId: usun_potwierdzenie
+      summary: Usuwanie potwierdzenia
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+
+  /akta/{znak_kancelarii}/info:
+    parameters:
+      - name: znak_kancelarii
+        in: path
+        description: znak kancelarii
+        required: true
+        schema:
+          type: string
+    get:
+      tags:
+      - Akta
+      operationId: techiczne_akt
+      summary: Informacje techniczne
+      responses:
+        200:
+          description: Operacja wykonana poprawnie
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Info'  
+        400:
+          $ref: '#/components/responses/ErrorResponse'          
+  /akta/{znak_kancelarii}/uid/{uid}:
+    parameters:
+      - name: znak_kancelarii
+        in: path
+        description: znak kancelarii
+        required: true
+        schema:
+          type: string
+      - name: uid
+        in: path
+        description: User ID.
+        required: true
+        schema:
+          type: number
+    post:
+      tags:
+      - Akta
+      summary: Nadaje uid
+      operationId: set_akta_uid
+      requestBody:
+        required: false
+        content:
+           application/json:
+            schema:
+              type: string
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+          
+  /akta/{znak_kancelarii}/gid/{gid}:
+    parameters:
+      - name: znak_kancelarii
+        in: path
+        description: znak kancelarii
+        required: true
+        schema:
+          type: string
+      - name: gid
+        in: path
+        description: Group ID.
+        required: true
+        schema:
+          type: number
+    post:
+      tags:
+      - Akta
+      summary: Nadaje gid
+      operationId: set_akta_gid
+      requestBody:
+        required: false
+        content:
+           application/json:
+            schema:
+              type: string
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+          
+  /akta/{znak_kancelarii}/inne/{id}:
+    parameters:
+      - name: znak_kancelarii
+        in: path
+        description: znak kancelarii
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        description: uid lub guid.
+        required: true
+        schema:
+          type: number       
+    post:
+      tags:
+      - Akta
+      summary: Dodaje id do zbioru uprwnionych inne
+      operationId: dodaj_akta_inne
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: number
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse' 
+    delete:
+      tags:
+      - Akta
+      summary: Usuwa id ze zbioru uprwnionych inne
+      operationId: usunj_akta_inne
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+  /akta/{znak_kancelarii}/inne:
+    parameters:
+      - name: znak_kancelarii
+        in: path
+        description: znak kancelarii
+        required: true
+        schema:
+          type: string
+    delete:
+      tags:
+      - Akta
+      summary: usuwa wszytkiw wpisy ze zbioru uprwnionych inne
+      operationId: wyczysc_akta_inne
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'  
+  /akta/pozostale:
+    get:
+      tags:
+      - Akta
+      operationId: akta_pozostale
+      summary: Wyszukiwanie pozostalych akt
+      parameters:
+        - $ref: "#/components/parameters/limit"
+        - $ref: "#/components/parameters/offset"
+        - $ref: "#/components/parameters/term"
+      responses:
+        200:
+          description: lista spraw
+          headers:
+            x-result-count:
+              schema:
+                type: integer
+            x-requsted-limit:
+              schema:
+                type: integer
+            x-requsted-offset:
+              schema:
+                type: integer  
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AktaPozostale' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'  
+  /akta/wplywajace:
+    get:
+      tags:
+      - Akta
+      operationId: akta_wplywajacce
+      summary: Wyszukiwanie akt wplywających
+      parameters:
+        - $ref: "#/components/parameters/limit"
+        - $ref: "#/components/parameters/offset"
+        - $ref: "#/components/parameters/term"
+      responses:
+        200:
+          description: lista spraw
+          headers:
+            x-result-count:
+              schema:
+                type: integer
+            x-requsted-limit:
+              schema:
+                type: integer
+            x-requsted-offset:
+              schema:
+                type: integer  
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AktaWplywajace' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+  /akta/wychodzace:
+    get:
+      tags:
+      - Akta
+      operationId: akta_wychodzace
+      summary: Wyszukiwanie akt wychodzacych
+      parameters:
+        - $ref: "#/components/parameters/limit"
+        - $ref: "#/components/parameters/offset"
+        - $ref: "#/components/parameters/term"
+      responses:
+        200:
+          description: lista spraw
+          headers:
+            x-result-count:
+              schema:
+                type: integer
+            x-requsted-limit:
+              schema:
+                type: integer
+            x-requsted-offset:
+              schema:
+                type: integer  
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AktaWychodzace' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+  
+  /negaty:
+    get:
+      tags:
+      - Negaty
+      operationId: negaty
+      summary: dodatkowe metryki akt bez spraw 
+      parameters:
+        - $ref: "#/components/parameters/limit"
+        - $ref: "#/components/parameters/offset"
+        - $ref: "#/components/parameters/term"
+      responses:
+        200:
+          description: Operacja wykonana poprawnie
+          headers:
+            x-result-count:
+              schema:
+                type: integer
+            x-requsted-limit:
+              schema:
+                type: integer
+            x-requsted-offset:
+              schema:
+                type: integer  
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Negat'       
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+  /negaty/{znak}:
+    parameters:
+      - name: znak
+        in: path
+        description: znak negatu
+        required: true
+        schema:
+          type: string
+    get:
+      tags: 
+        - Negaty
+      operationId: get_negat
+      summary: Zwaraca negat o zadanym znaku
+      responses:
+        200:
+          description: Operacja wykonana poprawnie
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Negat'  
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+    post:
+      tags:
+      - Negaty
+      operationId: dodaj_negat
+      summary: Dodawanie nagatu
+      requestBody:
+        required: false
+        content:
+           application/json:
+            schema:
+              $ref: '#/components/schemas/Negat' 
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+    delete:
+      tags:
+      - Negaty
+      summary: Usuwa negat
+      operationId: usunj_negat
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+  /negaty/{znak}/metryka:
+    parameters:
+      - name: znak
+        in: path
+        description: znak negatu
+        required: true
+        schema:
+          type: string
+    get:
+      tags:
+      - Negaty
+      summary: Metryka negatu
+      operationId: pobierz_metryke_negatu
+      responses:
+        200:
+          description: Operacja wykonana poprawnie
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Czynnosc' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+  /negaty/{znak}/metryka/dodaj:
+    parameters:
+      - name: znak
+        in: path
+        description: znak sprawy
+        required: true
+        schema:
+          type: string
+    post:
+      tags:
+      - Negaty
+      summary: Dodaje wpis do metryki sprawy
+      operationId: dodaj_czynnosc_negatu
+      requestBody:
+        required: false
+        content:
+           application/json:
+            schema:
+              $ref: '#/components/schemas/Czynnosc'
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+  /negaty/{znak}/akta:
+    parameters:
+      - name: znak
+        in: path
+        description: znak negatu
+        required: true
+        schema:
+          type: string
+    get:
+      tags:
+      - Negaty
+      summary: Lista akt przypisanych do negatu
+      operationId: akta_negatu
+      responses:
+        200:
+          description: Operacja wykonana poprawnie
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  anyOf:
+                  - $ref: '#/components/schemas/AktaWychodzace'
+                  - $ref: '#/components/schemas/AktaWplywajace'
+                  - $ref: '#/components/schemas/AktaPozostale'
+  /negaty/{znak}/info:
+    parameters:
+      - name: znak
+        in: path
+        description: techniczny znak negatu
+        required: true
+        schema:
+          type: string
+    get:
+      tags:
+      - Negaty
+      operationId: techiczne_negatu
+      summary: Informacje techniczne
+      responses:
+        200:
+          description: Operacja wykonana poprawnie
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Info'  
+        400:
+          $ref: '#/components/responses/ErrorResponse'          
+  /negaty/{znak}/uid/{uid}:
+    parameters:
+      - name: znak
+        in: path
+        description: techniczny znak negatu
+        required: true
+        schema:
+          type: string
+      - name: uid
+        in: path
+        description: User ID.
+        required: true
+        schema:
+          type: number
+    post:
+      tags:
+      - Negaty
+      summary: Nadaje uid
+      operationId: set_negaty_uid
+      requestBody:
+        required: false
+        content:
+           application/json:
+            schema:
+              type: string
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+          
+  /negaty/{znak}/gid/{gid}:
+    parameters:
+      - name: znak
+        in: path
+        description: znak negatu
+        required: true
+        schema:
+          type: string
+      - name: gid
+        in: path
+        description: Group ID.
+        required: true
+        schema:
+          type: number
+    post:
+      tags:
+      - Negaty
+      summary: Nadaje gid
+      operationId: set_nagat_gid
+      requestBody:
+        required: false
+        content:
+           application/json:
+            schema:
+              type: string
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+          
+  /negaty/{znak}/inne/{id}:
+    parameters:
+      - name: znak
+        in: path
+        description: znak negatu
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        description: uid lub guid.
+        required: true
+        schema:
+          type: number       
+    post:
+      tags:
+      - Negaty
+      summary: Dodaje id do zbioru uprwnionych inne
+      operationId: dodaj_negat_inne
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: number
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse' 
+    delete:
+      tags:
+      - Negaty
+      summary: Usuwa id ze zbioru uprwnionych inne
+      operationId: usunj_negat_inne
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+  /negaty/{znak}/inne:
+    parameters:
+      - name: znak
+        in: path
+        description: znak negatu
+        required: true
+        schema:
+          type: string
+    delete:
+      tags:
+      - Negaty
+      summary: usuwa wszytkiw wpisy ze zbioru uprwnionych inne
+      operationId: wyczysc_negat_inne
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'  
+
+components:
+  schemas:
+    SuccessInfo:
+      required:
+        - status
+      type: object
+      properties:
+        status:
+          type: string
+          description: Status
+    ErrorInfo:
+      required:
+        - error
+        - error_description
+      type: object
+      properties:
+        error:
+          type: string
+          description: Kod błędu
+          example: null
+        error_description:
+          type: string
+          description: Opis błędu
+          example: null
+        messageId:
+          type: string
+          description: ID wiadomośc
+    
+    DokumentInfo:
+      description: Informacje o dokumecie w repozytorium dokumentow elektornicznych
+      type: object
+      properties:
+        guid:
+          type: string
+        rozmiar:
+          type: number
+        mime:
+          type: string
+        uid:
+          type: number
+        gid:
+          type: number
+        inne:
+          type: array
+          items: 
+            type: number
+        data_utworzenia:
+          type: string
+        data_aktualizacji:
+          type: string
+        aranzacja:
+          type: array
+          items:
+            type: string
+
+    DokumentWersja:
+      description: Informacje o poprzednich wersjach dokumentu
+      type: object
+      properties:
+        guid:
+          type: string
+        wersja:
+          type: number
+        data_wersji:
+          type: string
+    
+    Pracownik:
+      type: object
+      properties:
+        nazwisko:
+          type: string
+        imie:
+          type: string
+        stanowisko:
+          type: string
+
+    Nazwa:
+      type: object
+      properties:
+        nazwisko:
+          type: string
+        imie:
+          type: string
+        nazwa:
+          type: string
+
+    AdresPocztowy:
+      type: object
+      properties:
+        kod_pocztowy:
+          type: string
+        miejscowosc:
+          type: string
+        ulica:
+          type: string
+        nr_bubynku:
+          type: string
+        nr_lokalu:
+          type: string
+        kraj:
+          type: string
+        skrzynka_pocztowa:
+          type: string          
+
+    AktaPozostale:
+      type: object
+      properties:
+        znak_kancelarii:
+          type: string
+        guid:
+          type: string
+        odpowiedzialny:
+          type: array
+          items:
+            $ref: '#/components/schemas/Pracownik'
+        data_wlaczenia:
+          type: string
+        rodzaj:
+          type: string
+        tytul:
+          type: string
+        dostep:
+          type: string
+        format:
+          type: string
+        typ:
+          type: string    
+        oznaczenia:
+          type: array
+          items:
+            $ref: '#/components/schemas/Oznaczenie'
+
+    AktaWplywajace:
+      type: object
+      properties:
+        znak_kancelarii:
+          type: string
+        guid:
+          type: string
+        odpowiedzialny:
+          type: array
+          items:
+            $ref: '#/components/schemas/Pracownik'
+        nazwa_nadawcy:
+          type: array
+          items: 
+            $ref: '#/components/schemas/Nazwa'
+        adres_nadawcy:
+          $ref: '#/components/schemas/AdresPocztowy'
+        email:
+          type: array
+          items: 
+            type: string
+        ade:
+          type: string
+        data_na_pismie:
+          type: string
+        data_nadania:
+          type: string
+        data_wplywu:
+          type: string
+        data_rejestracji:
+          type: string
+        rodzaj:
+          type: string
+        tytul:
+          type: string
+        dostep:
+          type: string
+        liczba_zalacznikow:
+          type: integer
+        format:
+          type: string
+        uwagi:
+          type: string
+        typ:
+          type: string
+        sposob_dostarczenia:
+          type: string
+        znak_nadawcy:
+          type: string
+        oznaczenia:
+          type: array
+          items:
+            $ref: '#/components/schemas/Oznaczenie'
+
+    AktaWychodzace:
+      type: object
+      properties:
+        znak_kancelarii:
+          type: string
+        guid:
+          type: string
+        odpowiedzialny:
+          type: array
+          items:
+            $ref: '#/components/schemas/Pracownik'
+        nazwa_adresata:
+          type: array
+          items: 
+            $ref: '#/components/schemas/Nazwa'
+        adres_adresata:
+          $ref: '#/components/schemas/AdresPocztowy'
+        email:
+          type: array
+          items: 
+            type: string
+        ade:
+          type: array
+          items: 
+            type: string
+        data_na_pismie:
+          type: string
+        data_nadania:
+          type: string
+        rodzaj:
+          type: string
+        tytul:
+          type: string
+        dostep:
+          type: string
+        liczba_zalacznikow:
+          type: integer
+        format:
+          type: string
+        uwagi:
+          type: string
+        typ:
+          type: string
+        sposob_wysylki:
+          type: string
+        znak_nadany:
+          type: string
+        oznaczenia:
+          type: array
+          items:
+            $ref: '#/components/schemas/Oznaczenie'
+
+    Info:
+      description: Informacje techniczne
+      type: object
+      properties:
+        znak:
+          type: string
+        guid:
+          type: string
+        uid:
+          type: number
+        gid:
+          type: number
+        inne:
+          type: array
+          items: 
+            type: number
+        techniczny_id:
+          type: string
+        data_utworzenia:
+          type: string
+        data_aktualizacji:
+          type: string
+        uwagi:
+          type: string  
+          
+    Sprawa:
+      type: object
+      properties:
+        znak:
+          type: string
+        zakladajacy:
+          $ref: '#/components/schemas/Pracownik'
+        prowadzacy:
+          type: array
+          items:
+            $ref: '#/components/schemas/Pracownik'
+        data_zalozenia:
+          type: string
+        data_ostanieago_aktu:
+          type: string
+        tytul:
+          type: string
+        dostep:
+          type: string
+        opis:
+          type: string
+        nr:
+          type: integer
+        klasa_archiwum:
+          type: string          
+
+    Klasyfikacja:
+      type: object
+      properties:
+        komorka:
+          type: string
+        symbol:
+          type: string
+        grupa:
+          type: integer
+        rok:
+          type: integer
+        haslo:
+          type: string
+        status:
+          type: string
+        data_zalozenia:
+          type: string
+        dostep:
+          type: string
+        klasa_archiwum:
+          type: string
+
+    Czynnosc:
+      type: object
+      description: Czynnosć stanowiąca pozycje metryki sprawy
+      properties:
+        znak:
+          type: string
+        data_czynnosci:
+          type: string
+        podejmujacy:
+          $ref: '#/components/schemas/Pracownik'
+        czynnosc:
+          type: string
+        guid:
+          type: string
+        znak_pisma:
+          type: string
+
+    Potwierdzenie:
+      type: object
+      description: Uzupełnienjace dane akt sprawy
+      properties:
+        id:
+          type: integer
+        znak_kancelarii:
+          type: string
+        data_operacji:
+          type: string
+        typ:
+          type: string
+        opis:
+          type: string
+        guid:
+          type: string
+
+    Pozycja_RWA:
+      type: object
+      properties:
+        symbol:
+          type: string
+        haslo:
+          type: string
+        uszczegolowienie:
+          type: string
+        kategoria_archiwalna:
+          type: string
+    
+    Oznaczenie:
+      type: object
+      properties:
+        typ: 
+          type: string
+          enum: [SPRAWA, NEGAT]
+        znak:
+          type: string 
+
+    Negat:
+      type: object
+      properties:
+        znak: 
+          type: string
+        tytul:
+          type: string
+        opis:
+          type: string          
+    Klucz:
+      description: Kucz indeksu
+      type: object
+      properties:
+        klucz:
+          type: string
+        haslo:
+          type: string
+
+    KluczDane:
+      allOf:
+      - $ref: "#/components/schemas/Klucz"
+      properties:
+        sprawy:
+          type: array
+          items:
+            type: string
+        akta:
+          type: array
+          items:
+            type: string
+        negaty:
+          type: array
+          items:
+            type: string
+
+    Agregat:
+      allOf:
+      - $ref: "#/components/schemas/Klucz"
+      properties:
+        sprawy:
+          type: array
+          items:
+            $ref: '#/components/schemas/Sprawa'
+        akta:
+          type: array
+          items:
+            anyOf:
+              - $ref: '#/components/schemas/AktaPozostale'
+              - $ref: '#/components/schemas/AktaWplywajace'
+              - $ref: '#/components/schemas/AktaWychodzace'
+        negaty:
+          type: array
+          items:
+            $ref: '#/components/schemas/Negat'
+
+  parameters:
+    offset:
+      in: query
+      name: offset
+      schema:
+        type: integer
+      description: przesuniecie od ktrego rozpoczynamy zwracie wierszy
+    limit:
+      in: query
+      name: limit
+      schema:
+        type: integer
+      description: liczba zwaracanych wierszy
+    term:
+      in: query
+      name: term
+      schema:
+        type: string
+      description: filtr zapytania     
+
+  responses:
+    SuccessResponse:
+      description: Success response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SuccessInfo'
+
+    ErrorResponse:
+      description: Error response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorInfo'
+              

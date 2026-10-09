@@ -1,0 +1,128 @@
+/*
+ * Copyright (C) 2026 Algor Informatyzcja Przedsiębiorstw Sp. z o.o.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://gnu.org>.
+ */
+import React, { useEffect, useState, useTransition } from "react";
+import { useZnakRwa } from "@/lib/znakRwa";
+import { akta_negatu, negat } from "../actions";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Potwierdzenia, Wychodzaca } from "./wychodzaca";
+import { Wplywajaca } from "./wplywajaca";
+import { Pozostale } from "./pozostale";
+import { Label, Metryka } from "./sprawa";
+import Link from "next/link";
+
+export function Negat(props: any) {
+    return (
+        <>
+            <div className="flex h-full flex-col">
+                <ScrollArea className="h-screen">
+                    <div className="container py-10" >
+                        <NegatNaglowek metryka={true} />
+                        <AktaNegatu />
+                    </div>
+                </ScrollArea>
+
+            </div>
+        </>
+
+    )
+}
+
+export function NegatKafelek({ dane }: { dane: any }) {
+    return (<div className="grid grid-cols-12">
+        <div className="border-r border-b col-span-3 px-3 pt-1"><div>{dane?.znak}</div><Label klucz="4" /></div>
+        <div className="border-b col-span-9 px-3 pt-1"><div>{dane?.tytul}</div><Label klucz="5" /></div>
+        <div className="border-b col-span-10 px-3 pt-1"><div>{dane?.opis}</div><Label klucz="9" /></div>
+    </div>)
+}
+
+const emptyObject = {};
+export function NegatNaglowek({ metryka = false }: { metryka: boolean }) {
+    const [dane, setDane] = useState<any>(emptyObject)
+    const [panding, setTransition] = useTransition()
+    const [znakRwa, setZnakRwa] = useZnakRwa()
+    useEffect(() => {
+        var dane: any[] = []
+        setTransition(async () => {
+            const resp = await negat(znakRwa)
+            setDane(resp)
+        })
+    }, [znakRwa])
+
+
+    return (<>
+
+        {metryka && <Metryka znak="NEGAT" tytul={dane?.tytul} />}
+    </>)
+}
+
+export function AktaNegatu() {
+    const [dane, setDane] = useState(emptyList)
+    const [panding, setTransition] = useTransition()
+    const [znakRwa, setZnakRwa] = useZnakRwa()
+    useEffect(() => {
+        var dane: any[] = []
+        setTransition(async () => {
+            const resp = await akta_negatu(znakRwa)
+            resp.sort((a: any, b: any) => a.pozycja - b.pozycja)
+            setDane(resp)
+        })
+    }, [znakRwa])
+
+
+    return (
+        <Table className="border-collapse">
+            <TableHeader className="bg-sidebar">
+                <TableHead className="border" colSpan={3}>Akta</TableHead>
+            </TableHeader>
+            <TableHeader>
+                <TableHead className="border w-[3em]">L.p.</TableHead>
+                <TableHead className="border w-[11em]">Znak kancelarii</TableHead>
+                <TableHead className="border">Akta sprawy</TableHead>
+            </TableHeader>
+            <TableBody>
+                {!panding && <>
+                    {dane.map((r: any) => <>
+                        <TableRow>
+                            <TableCell className="border">
+                                {r.pozycja}.
+                            </TableCell>
+                            
+                                <TableCell className="border">
+                                    <Link href={`/akta/${r.klucz}`} target="sprawa" prefetch={false}>
+                                    {r.klucz}
+                                    </Link>
+                                </TableCell>
+
+                            <TableCell className="w100 border p-0 border-collapse">
+                                {r?.typ === 'wychodzace' && <Wychodzaca znakPisma={r.klucz} />}
+                                {r?.typ === 'wplywajace' && <Wplywajaca znakPisma={r.klucz} />}
+                                {r?.typ === 'akta_pozostale' && <Pozostale znakPisma={r.klucz} />}
+                                <Potwierdzenia znakPisma={r.klucz} />
+                            </TableCell>
+                        </TableRow>
+                    </>)}
+                </>}
+
+
+            </TableBody>
+
+        </Table>
+    )
+}
+
+const emptyList: any[] = [];

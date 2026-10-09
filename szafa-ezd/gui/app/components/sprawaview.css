@@ -1,0 +1,122 @@
+.sprawa-view-link-container {
+  cursor: pointer;
+  /* display: inline-block; */
+  /* padding: 8px 12px;
+  border: 1px dashed #007bff;
+  border-radius: 4px;
+  background-color: #f8f9fa;
+  color: #007bff;
+  text-decoration: none;
+  transition: all 0.2s ease; */
+}
+
+.sprawa-view-link-container:hover {
+  background-color: #e9ecef;
+  border-color: #0056b3;
+}
+
+.sprawa-view-link {
+  font-weight: 500;
+}
+
+.sprawa-view-previous {
+  position: absolute;
+  top: 40%;
+  left: 15px;
+  font-size: 60px;
+  background: none;
+  border: none;
+  color: grey;
+  cursor: pointer;
+  z-index: 1001;
+  width: 60px;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10%;
+  /* background-color: rgba(0, 0, 0, 0.9); */
+}
+
+.sprawa-view-previous:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.sprawa-view-next {
+  position: absolute;
+  top: 40%;
+  right: 15px;
+  font-size: 60px;
+  background: none;
+  border: none;
+  color: grey;
+  cursor: pointer;
+  z-index: 1001;
+  width: 60px;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10%;
+  /* background-color: rgba(0, 0, 0, 0.9); */
+}
+
+.sprawa-view-next:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+
+.sprawa-view-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.sprawa-view-container {
+  position: relative;
+  width: 90%;
+  height: 90%;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sprawa-view-close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 30px;
+  background: none;
+  border: none;
+  color: grey;
+  cursor: pointer;
+  z-index: 1001;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.sprawa-view-close:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.sprawa-view-loading {
+  text-align: center;
+  color: #666;
+  font-size: 18px;
+}

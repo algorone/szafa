@@ -1,0 +1,650 @@
+openapi: 3.0.3
+servers: [] 
+info:
+  title: EZD API
+  version: 1.0.0
+  description: |
+    <p>
+    Specyfikacja API EZD
+    </p>
+
+tags:
+  - name: Indeksy
+    description: Obsługa indeksów
+
+paths:
+  /indeksy/{kod}:
+    parameters:
+      - name: kod
+        in: path
+        description: Identyfikator indeksu.
+        required: true
+        schema:
+          type: string 
+    get:
+      tags:
+      - Indeksy
+      operationId: pobierz_indeks
+      summary: Wyszukuje dane indeksu
+      parameters:
+        - $ref: "#/components/parameters/limit"
+        - $ref: "#/components/parameters/offset"
+        - $ref: "#/components/parameters/term"
+      responses:
+        200:
+          description: lista kluczy
+          headers:
+            x-result-count:
+              schema:
+                type: integer
+            x-requested-limit:
+              schema:
+                type: integer
+            x-requested-offset:
+              schema:
+                type: integer                  
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Klucz' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+
+  /indeksy/{kod}/{klucz}:
+    parameters:
+      - name: kod
+        in: path
+        description: Identyfikator indeksu.
+        required: true
+        schema:
+          type: string 
+      - name: klucz
+        in: path
+        description: Klucz indeksu.
+        required: true
+        schema:
+          type: string  
+    get:
+      tags:
+      - Indeksy
+      operationId: pobierz_dane
+      summary: Zwraca dane indeksu o zadanym kluczu
+      responses:
+        200:
+          description: Operacja wykonana poprawnie
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KluczDane' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+    post:
+      tags:
+      - Indeksy    
+      summary: Dodaje klucz indeksu
+      operationId: dodaj_klucz
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KluczDane' 
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'        
+    patch:
+      tags:
+      - Indeksy    
+      summary: Aktualizuje hasło klucza
+      operationId: aktualizuj_haslo
+      description: Aktualizue hasło indeksu
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Klucz' 
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'      
+    delete:
+      tags:
+      - Indeksy    
+      summary: Usuwa dane indeksu pod zadanym kluczem
+      operationId: usun_klucz
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+  /indeksy/{kod}/{klucz}/sprawy:
+    parameters:
+      - name: kod
+        in: path
+        description: Identyfikator indeksu.
+        required: true
+        schema:
+          type: string 
+      - name: klucz
+        in: path
+        description: Klucz indeksu.
+        required: true
+        schema:
+          type: string
+    put:
+      tags:
+      - Indeksy    
+      summary: Wstawia sprawy pod klucz
+      operationId: wstaw_spawy_pod_klucz
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+  /indeksy/{kod}/{klucz}/sprawy/{znak}:
+    parameters:
+      - name: kod
+        in: path
+        description: Identyfikator indeksu.
+        required: true
+        schema:
+          type: string 
+      - name: klucz
+        in: path
+        description: Klucz indeksu.
+        required: true
+        schema:
+          type: string  
+      - name: znak
+        in: path
+        description: znak sprawy.
+        required: true
+        schema:
+          type: string  
+    post:
+      tags:
+      - Indeksy
+      summary: Dodaje sprawe pod klucz
+      operationId: dodaj_pozycje_sprawy
+      responses:
+        200:
+          description: Operacja wykonana poprawnie
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessInfo' 
+        400:
+          $ref: '#/components/responses/ErrorResponse' 
+    delete:
+      tags:
+      - Indeksy
+      summary: Usuwa sprawe spod klucza
+      operationId: usun_pozycje_sprawy
+      responses:
+        200:
+          description: Operacja wykonana poprawnie
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessInfo' 
+        400:
+          $ref: '#/components/responses/ErrorResponse' 
+  /indeksy/{kod}/{klucz}/akta:
+    parameters:
+      - name: kod
+        in: path
+        description: Identyfikator indeksu.
+        required: true
+        schema:
+          type: string 
+      - name: klucz
+        in: path
+        description: Klucz indeksu.
+        required: true
+        schema:
+          type: string
+    put:
+      tags:
+      - Indeksy    
+      summary: Wstawia akta pod klucz
+      operationId: wstaw_akta_pod_klucz
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+  /indeksy/{kod}/{klucz}/akta/{znak}:
+    parameters:
+      - name: kod
+        in: path
+        description: Identyfikator indeksu.
+        required: true
+        schema:
+          type: string 
+      - name: klucz
+        in: path
+        description: Klucz indeksu.
+        required: true
+        schema:
+          type: string  
+      - name: znak
+        in: path
+        description: znak akt.
+        required: true
+        schema:
+          type: string  
+    post:
+      tags:
+      - Indeksy
+      summary: Dodaje akta pod klucz
+      operationId: dodaj_pozycje_akt
+      responses:
+        200:
+          description: Operacja wykonana poprawnie
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessInfo' 
+        400:
+          $ref: '#/components/responses/ErrorResponse' 
+    delete:
+      tags:
+      - Indeksy
+      summary: Usuwa akta spod klucza
+      operationId: usun_pozycje_akt
+      responses:
+        200:
+          description: Operacja wykonana poprawnie
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessInfo' 
+        400:
+          $ref: '#/components/responses/ErrorResponse' 
+  /indeksy/{kod}/{klucz}/negaty:
+    parameters:
+      - name: kod
+        in: path
+        description: Identyfikator indeksu.
+        required: true
+        schema:
+          type: string 
+      - name: klucz
+        in: path
+        description: Klucz indeksu.
+        required: true
+        schema:
+          type: string
+    put:
+      tags:
+      - Indeksy    
+      summary: Wstawia negaty pod klucz
+      operationId: wstaw_negaty_pod_klucz
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+  /indeksy/{kod}/{klucz}/negaty/{znak}:
+    parameters:
+      - name: kod
+        in: path
+        description: Identyfikator indeksu.
+        required: true
+        schema:
+          type: string 
+      - name: klucz
+        in: path
+        description: Klucz indeksu.
+        required: true
+        schema:
+          type: string  
+      - name: znak
+        in: path
+        description: znak negatu.
+        required: true
+        schema:
+          type: string  
+    post:
+      tags:
+      - Indeksy
+      summary: Dodaje negat pod klucz
+      operationId: dodaj_pozycje_negatu
+      responses:
+        200:
+          description: Operacja wykonana poprawnie
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessInfo' 
+        400:
+          $ref: '#/components/responses/ErrorResponse' 
+    delete:
+      tags:
+      - Indeksy
+      summary: Usuwa negat spod klucza
+      operationId: usun_pozycje_negatu
+      responses:
+        200:
+          description: Operacja wykonana poprawnie
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessInfo' 
+        400:
+          $ref: '#/components/responses/ErrorResponse' 
+
+  /indeksy/{kod}/{klucz}/uid/{uid}:
+    parameters:
+      - name: kod
+        in: path
+        description: Identyfikator indeksu.
+        required: true
+        schema:
+          type: string 
+      - name: klucz
+        in: path
+        description: Klucz indeksu.
+        required: true
+        schema:
+          type: string  
+      - name: uid
+        in: path
+        description: User ID.
+        required: true
+        schema:
+          type: number
+    post:
+      tags:
+      - Indeksy
+      summary: Nadaje uid
+      operationId: set_klucz_uid
+      requestBody:
+        required: false
+        content:
+           application/json:
+            schema:
+              type: string
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+          
+  /indeksy/{kod}/{klucz}/gid/{gid}:
+    parameters:
+      - name: kod
+        in: path
+        description: Identyfikator indeksu.
+        required: true
+        schema:
+          type: string 
+      - name: klucz
+        in: path
+        description: Klucz indeksu.
+        required: true
+        schema:
+          type: string  
+      - name: gid
+        in: path
+        description: User ID.
+        required: true
+        schema:
+          type: number
+    post:
+      tags:
+      - Indeksy
+      summary: Nadaje gid
+      operationId: set_klucz_gid
+      requestBody:
+        required: false
+        content:
+           application/json:
+            schema:
+              type: string
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+          
+  /indeksy/{kod}/{klucz}/inne/{id}:
+    parameters:
+      - name: kod
+        in: path
+        description: Identyfikator indeksu.
+        required: true
+        schema:
+          type: string 
+      - name: klucz
+        in: path
+        description: Klucz indeksu.
+        required: true
+        schema:
+          type: string  
+      - name: id
+        in: path
+        description: uid lub guid.
+        required: true
+        schema:
+          type: integer       
+    post:
+      tags:
+      - Indeksy
+      summary: Dodaje id do zbioru uprwnionych inne
+      operationId: dodaj_klucz_inne
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: integer
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse' 
+    delete:
+      tags:
+      - Indeksy
+      summary: Usuwa id ze zbioru uprwnionych inne
+      operationId: usunj_klucz_inne
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+  /indeksy/{kod}/{klucz}/inne:
+    parameters:
+      - name: kod
+        in: path
+        description: Identyfikator indeksu.
+        required: true
+        schema:
+          type: string 
+      - name: klucz
+        in: path
+        description: Klucz indeksu.
+        required: true
+        schema:
+          type: string  
+    delete:
+      tags:
+      - Indeksy
+      summary: usuwa wszytkiw wpisy ze zbioru uprwnionych inne
+      operationId: wyczysc_klucz_inne
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+  /indeksy/{kod}/{klucz}/info:
+    parameters:
+      - name: kod
+        in: path
+        description: Identyfikator indeksu.
+        required: true
+        schema:
+          type: string 
+      - name: klucz
+        in: path
+        description: Klucz indeksu.
+        required: true
+        schema:
+          type: string  
+    get:
+      tags:
+      - Indeksy
+      summary: Informacje techniczne
+      operationId: techniczne_indeks
+      responses:
+        200:
+          description: Operacja wykonana poprawnie
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Info'  
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+
+
+components:
+  schemas:
+    SuccessInfo:
+      required:
+        - status
+      type: object
+      properties:
+        status:
+          type: string
+          description: Status
+    ErrorInfo:
+      required:
+        - error
+        - error_description
+      type: object
+      properties:
+        error:
+          type: string
+          description: Kod błędu
+          example: null
+        error_description:
+          type: string
+          description: Opis błędu
+          example: null
+        messageId:
+          type: string
+          description: ID wiadomośc
+
+    Klucz:
+      description: Kucz indeksu
+      type: object
+      properties:
+        klucz:
+          type: string
+        haslo:
+          type: string
+
+    KluczDane:
+      allOf:
+      - $ref: "#/components/schemas/Klucz"
+      properties:
+        sprawy:
+          type: array
+          items:
+            type: string
+        akta:
+          type: array
+          items:
+            type: string
+        negaty:
+          type: array
+          items:
+            type: string
+
+    Info:
+      description: Informacje techniczne
+      type: object
+      properties:
+        uid:
+          type: number
+        gid:
+          type: number
+        inne:
+          type: array
+          items: 
+            type: number
+        techniczny_id:
+          type: string
+        data_utworzenia:
+          type: string
+        data_aktualizacji:
+          type: string
+        uwagi:
+          type: string  
+
+  parameters:
+    offset:
+      in: query
+      name: offset
+      schema:
+        type: integer
+      description: przesuniecie od którego rozpoczynamy zwracie wierszy
+    limit:
+      in: query
+      name: limit
+      schema:
+        type: integer
+      description: liczba zwracanych wierszy
+    term:
+      in: query
+      name: term
+      schema:
+        type: string
+      description: filtr zapytania  
+
+  responses:
+    SuccessResponse:
+      description: Success response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SuccessInfo'
+
+    ErrorResponse:
+      description: Error response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorInfo'
+              

@@ -1,0 +1,419 @@
+openapi: 3.0.3
+servers: [] 
+info:
+  title: EZD API
+  version: 1.0.0
+  description: |
+    <p>
+    Specyfikacja API EZD
+    </p>
+
+tags:
+  - name: Dokumenty
+    description: Obsługa dokumentow w repozytorium dokumentów eletronicznych
+    
+paths:
+  /dokumenty/{guid}:
+    parameters:
+      - name: guid
+        in: path
+        description: Identyfikator dokumentu.
+        required: true
+        schema:
+          type: string  
+    get:
+      tags:
+      - Dokumenty
+      operationId: pobierz_dokument
+      summary: Zwraca dukument o zadanym guid
+      responses:
+        200:
+          description: Operacja wykonana poprawnie
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+    post:
+      tags:
+      - Dokumenty    
+      summary: Dodaje dokument do składu
+      operationId: dodaj_dokument
+      requestBody:
+        required: true
+        content:
+          application/binary:
+            schema:
+              type: string
+              format: binary
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProxyInfo' 
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'        
+    patch:
+      tags:
+      - Dokumenty    
+      summary: Aktualizuje dokument w składzie
+      operationId: aktualizuj_dokument
+      description: Robi kopie aktualnego dokumentu i zapisuje pod historią
+      requestBody:
+        required: true
+        content:
+          application/binary:
+            schema:
+              type: string
+              format: binary
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProxyInfo' 
+      responses:
+        200:
+          description: Operacja wykonana poprawnie
+          content:
+            application/json:
+              schema:
+                type: string
+        400:
+          $ref: '#/components/responses/ErrorResponse'      
+    delete:
+      tags:
+      - Dokumenty    
+      summary: Usuwa dokument
+      operationId: usun_dokument
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+
+  /dokumenty/{guid}/info:
+    parameters:
+      - name: guid
+        in: path
+        description: Identyfikator dokumentu.
+        required: true
+        schema:
+          type: string  
+    get:
+      tags:
+      - Dokumenty
+      summary: Informacje o dokumencie
+      operationId: dokument_info
+      responses:
+        200:
+          description: Operacja wykonana poprawnie
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DokumentInfo' 
+        400:
+          $ref: '#/components/responses/ErrorResponse' 
+  /dokumenty/{guid}/aranzacja:
+    parameters:
+      - name: guid
+        in: path
+        description: Identyfikator dokumentu.
+        required: true
+        schema:
+          type: string  
+    post:
+      tags:
+      - Dokumenty
+      summary: Dodaje informacje aranżacji o dokumentu
+      operationId: dodaj_aranzacja
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DokumentInfo/properties/aranzacja' 
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'  
+    delete:
+      tags:
+      - Dokumenty
+      summary: Usuwa informacje aranżacji o dokumentu
+      operationId: usun_aranzacja
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'      
+
+  /dokumenty/{guid}/uid/{uid}:
+    parameters:
+      - name: guid
+        in: path
+        description: Identyfikator dokumentu.
+        required: true
+        schema:
+          type: string
+      - name: uid
+        in: path
+        description: User ID.
+        required: true
+        schema:
+          type: number
+    post:
+      tags:
+      - Dokumenty
+      summary: Nadaje uid
+      operationId: set_dokument_uid
+      requestBody:
+        required: false
+        content:
+           application/json:
+            schema:
+              type: string
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+          
+  /dokumenty/{guid}/gid/{gid}:
+    parameters:
+      - name: guid
+        in: path
+        description: Identyfikator dokumentu.
+        required: true
+        schema:
+          type: string    
+      - name: gid
+        in: path
+        description: User ID.
+        required: true
+        schema:
+          type: number
+    post:
+      tags:
+      - Dokumenty
+      summary: Nadaje gid
+      operationId: set_dokument_gid
+      requestBody:
+        required: false
+        content:
+           application/json:
+            schema:
+              type: string
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+          
+  /dokumenty/{guid}/inne/{id}:
+    parameters:
+      - name: guid
+        in: path
+        description: Identyfikator dokumentu.
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        description: uid lub guid.
+        required: true
+        schema:
+          type: integer       
+    post:
+      tags:
+      - Dokumenty
+      summary: Dodaje id do zbioru uprwnionych inne
+      operationId: dodaj_dokument_inne
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: integer
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse' 
+    delete:
+      tags:
+      - Dokumenty
+      summary: Usuwa id ze zbioru uprwnionych inne
+      operationId: usunj_dokument_inne
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+  /dokumenty/{guid}/inne:
+    parameters:
+      - name: guid
+        in: path
+        description: Identyfikator dokumentu.
+        required: true
+        schema:
+          type: string
+    delete:
+      tags:
+      - Dokumenty
+      summary: usuwa wszytkiw wpisy ze zbioru uprwnionych inne
+      operationId: wyczysc_dokument_inne
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessResponse' 
+        400:
+          $ref: '#/components/responses/ErrorResponse'
+    
+  /dokumenty/{guid}/poprzednie:
+    parameters:
+      - name: guid
+        in: path
+        description: Identyfikator dokumentu.
+        required: true
+        schema:
+          type: string  
+    get:
+      tags:
+      - Dokumenty
+      summary: Zwraca liste z URI do porzednich wersji dokumentu
+      operationId: poprzednie_wersje
+      responses:
+        200:
+          description: Operacja wykonana poprawnie
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DokumentWersja' 
+        400:
+          $ref: '#/components/responses/ErrorResponse' 
+  /dokumenty/{guid}/poprzednie/{wersja}:
+    parameters:
+      - name: guid
+        in: path
+        description: Identyfikator dokumentu.
+        required: true
+        schema:
+          type: string  
+      - name: wersja
+        in: path
+        description: wersja dokumentu.
+        required: true
+        schema:
+          type: integer
+    get:
+      tags:
+      - Dokumenty
+      summary: Zwraca poprzednia wersje dokumentu
+      operationId: poprzednia_wersja_dokumentu
+      responses:
+        200:
+          description: Operacja wykonana poprawnie
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        400:
+          $ref: '#/components/responses/ErrorResponse' 
+  
+components:
+  schemas:
+    SuccessInfo:
+      required:
+        - status
+      type: object
+      properties:
+        status:
+          type: string
+          description: Status
+    ErrorInfo:
+      required:
+        - error
+        - error_description
+      type: object
+      properties:
+        error:
+          type: string
+          description: Kod błędu
+          example: null
+        error_description:
+          type: string
+          description: Opis błędu
+          example: null
+        messageId:
+          type: string
+          description: ID wiadomośc
+          
+    DokumentInfo:
+      description: Informacje o dokumecie w składzie dokumentow elektornicznych
+      type: object
+      properties:
+        guid:
+          type: string
+        rozmiar:
+          type: number
+        mime:
+          type: string
+        uid:
+          type: number
+        gid:
+          type: number
+        inne:
+          type: array
+          items: 
+            type: number
+        data_utworzenia:
+          type: string
+        data_aktualizacji:
+          type: string
+        aranzacja:
+          type: array
+          items:
+            type: string
+
+    ProxyInfo:
+      description: Ustwienia proxy dla dokumantu
+      type: object
+      properties:
+        proxy:
+          type: string
+        mime:
+          type: string
+      required:
+        - proxy
+        - mine
+
+    DokumentWersja:
+      description: Informacje o poprzednich wersjach dokumentu
+      type: object
+      properties:
+        guid:
+          type: string
+        wersja:
+          type: number
+        dataWersji:
+          type: string
+
+  responses:
+    SuccessResponse:
+      description: Success response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/SuccessInfo'
+
+    ErrorResponse:
+      description: Error response
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/ErrorInfo'
+              
