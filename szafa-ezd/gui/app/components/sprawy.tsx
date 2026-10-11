@@ -88,7 +88,7 @@ export function ListaSpraw() {
                 setRefresh(Math.random())
                  }} />
             <div className="flex items-center gap-3 px-4 w-[200px]">
-                <Button variant="outline">export XLS</Button>
+                <Button variant="outline" disabled={true}>export XLS</Button>
             </div>
 
             <div className="flex items-center gap-3 px-4 w-[300px]">

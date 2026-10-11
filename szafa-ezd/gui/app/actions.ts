@@ -133,7 +133,7 @@ FROM ezd.sprawy `
 --$7-IS-NULL-- AND length($7) IS NULL 
 --$7-- AND (ezd.split_klasyfikacja(znak)).grupa like $7||'%' 
 --$8-IS-NULL-- AND length($8) IS NULL 
---$8-- AND (ezd.split_klasyfikacja(znak)).grupa like $8||'%' 
+--$8-- AND (ezd.split_klasyfikacja(znak)).rok like $8||'%' 
 `
   const [zawiera, nieZawiera, dataOd, dataDo,jo,rwa,grupa,rok] = parseQueryForSearch(term, true)
 
@@ -536,6 +536,42 @@ export async function get_uid() {
   return -1
 
 }
+
+export async function getJoList(){
+  // TODO zoptymalizować przez indesks i zapytanie WITH RECURSIVE
+  const sql = `
+  SELECT DISTINCT jo FROM (
+    SELECT DISTINCT (ezd.split_klasyfikacja((ezd.split_znak(znak)).klasyfikacja)).jo FROM ezd.sprawy
+    ) ORDER BY jo 
+  `
+  const rs = await query(sql)
+  return rs.rows.map(rec => {
+    return { ...rec }
+  })
+}
+
+export async function getLataList(){
+  // TODO zoptymalizować przez indesks i zapytanie WITH RECURSIVE
+  const sql = ` 
+  SELECT DISTINCT rok FROM (
+    SELECT DISTINCT (ezd.split_klasyfikacja((ezd.split_znak(znak)).klasyfikacja)).rok FROM ezd.sprawy
+  ) ORDER BY rok 
+  `
+  const rs = await query(sql)
+  return rs.rows.map(rec => {
+    return { ...rec }
+  })
+}
+
+export async function getEnvList(baseName: string){
+  const list = [];
+  let index = 1;
+  while (process.env[`${baseName}_${index}`] !== undefined) {
+    list.push(process.env[`${baseName}_${index}`]);
+    index++;
+  }
+  return list;
+};
 
 
 

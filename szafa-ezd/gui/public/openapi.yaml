@@ -17,8 +17,6 @@ tags:
     description: Obsługa indeksów
   - name: Dokumenty
     description: Obsługa dokumentow w repozytorium dokumentów eletronicznych
-  - name: Struktura
-    description: Ogranizacja szafy
   - name: Klasyfikacje
     description: Obsługa klasyfikacji spraw
   - name: Sprawy
@@ -901,122 +899,6 @@ paths:
                 format: binary
         400:
           $ref: '#/components/responses/ErrorResponse' 
-  /rwa:
-    get:
-      tags:
-      - Struktura
-      operationId: lista_rwa
-      summary: Zwraca dostpene lata dla których przechowujemy RWA
-      responses:
-        200:
-          description: Linki do RWA
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: integer
-        400:
-          $ref: '#/components/responses/ErrorResponse' 
-  /rwa/{rok}:
-    parameters:
-      - name: rok
-        in: path
-        description: rok w formacie YYYY
-        required: true
-        schema:
-          type: integer  
-    get:
-      tags:
-      - Struktura
-      operationId: rwa_na_rok
-      summary: Zwraca RWA dla zadanego roku
-      responses:
-        200:
-          description: RWA
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Pozycja_RWA' 
-        400:
-          $ref: '#/components/responses/ErrorResponse' 
-    post:
-      tags:
-      - Struktura
-      summary: Dodaje/modyfikuje kompletne RWA dla zadanego roku 
-      operationId: dodaj_rwa
-      requestBody:
-        required: false
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                $ref: '#/components/schemas/Pozycja_RWA' 
-      responses:
-        200:
-          $ref: '#/components/responses/SuccessResponse' 
-        400:
-          $ref: '#/components/responses/ErrorResponse'
-
-  /jednostka:
-    get:
-      tags:
-      - Struktura
-      operationId: lista_so
-      summary: Zwraca dostpene lata, dla których mamy strukture organizacyjną
-      responses:
-        200:
-          description: Linki do lat, dla których mamy strukture organizacyjną
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: integer
-        400:
-          $ref: '#/components/responses/ErrorResponse' 
-  /jednostka/{rok}:
-    parameters:
-      - name: rok
-        in: path
-        description: rok w formacie YYYY
-        required: true
-        schema:
-          type: integer  
-    get:
-      tags:
-      - Struktura
-      operationId: so_na_rok
-      summary: Zwraca strukture organizacyjną dla zadanego roku
-      responses:
-        200:
-          description: struktura organizacyjna jednostki
-          content:
-            text/plain:
-              schema:
-                type: string
-        400:
-          $ref: '#/components/responses/ErrorResponse' 
-    post:
-      tags:
-      - Struktura
-      summary: Dodaje/modyfikuje kompletną strukture organizacyjną dla zadanego roku 
-      operationId: dodaj_so
-      requestBody:
-        required: false
-        content:
-          text/plain:
-            schema:
-              type: string
-      responses:
-        200:
-          $ref: '#/components/responses/SuccessResponse' 
-        400:
-          $ref: '#/components/responses/ErrorResponse'
-
 
   /klasyfikacje:
     get:
@@ -2453,18 +2335,6 @@ components:
         opis:
           type: string
         guid:
-          type: string
-
-    Pozycja_RWA:
-      type: object
-      properties:
-        symbol:
-          type: string
-        haslo:
-          type: string
-        uszczegolowienie:
-          type: string
-        kategoria_archiwalna:
           type: string
     
     Oznaczenie:

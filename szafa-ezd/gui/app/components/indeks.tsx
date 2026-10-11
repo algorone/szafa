@@ -35,6 +35,11 @@ import { AktaPozostaleKafelek } from "./pozostale";
 import { NegatKafelek } from "./negat";
 import { useKodIndeksu } from "@/lib/kod_indeksu";
 import Link from "next/link";
+import { getEnvList } from "../actions";
+
+const INDEKSY = process.env.INDEKSY_LIST
+  ? JSON.parse(process.env.INDEKSY_LIST) 
+  : [];
 
 export function Indeks(props: any) {
     return (
@@ -127,7 +132,7 @@ export function ListaKluczy() {
                 setRefresh(Math.random())
             }} />
             <div className="flex items-center gap-3 px-4 w-[200px]">
-                <Button variant="outline">export XLS</Button>
+                <Button variant="outline" disabled={true}>export XLS</Button>
             </div>
 
             <div className="flex items-center gap-3 px-4 w-[300px]">
@@ -267,22 +272,43 @@ export function PozycjeIndeksu({ kodIndeksu, agregat }: { kodIndeksu: string | n
 
 function IndexBox() {
     const [kod, setKod] = useKodIndeksu()
+    const [indeksy, setIndeksy] = useState<any>(null)
+    const [panding, setTransition] = useTransition()
+
+    useEffect(()=>{
+        setTransition(async ()=>{
+            const dane = await getEnvList('INDEKS')
+            console.log(JSON.stringify(dane))
+            setIndeksy(dane)
+        });
+
+    },[kod])
+
+    function getKodIndeksu(row:string){
+        return row.split('#')[0]
+    }
+    function getOpisIndeksu(row:string){
+        return row.split('#')[1]
+    }
+
     return (<>
         <div className="flex items-center px-4 py-2">
             {/* <Checkbox className="px-2" id="klasyfikacje"></Checkbox> */}
             <Label htmlFor="klasyfikacje" className="px-2">
                 Przeglądanie indeksu: {kod}
             </Label>
-            {/* <div className="px-2">Ograniczenia do klasyfikacji jRWA: </div> */}
             <Select name="kod" value={kod} onValueChange={setKod}>
                 <SelectTrigger className="w-[50%]">
                     <SelectValue placeholder="--" />
                 </SelectTrigger>
                 <SelectContent>
-                    <SelectItem value="TEST">Testowy indeks gdański</SelectItem>
-                    <SelectItem value="ADE">Indeksowanie po adresach doręczeń elektonicznych</SelectItem>
-                    <SelectItem value="PESEL">Indeksowanie po numerze PESEL</SelectItem>
+               {(indeksy!=null)&&indeksy.map((idx:any)=>
+                    <SelectItem value={getKodIndeksu(idx)}>{getOpisIndeksu(idx)}</SelectItem>
+                )}
                 </SelectContent>
+        
+
+
             </Select>
         </div>
     </>)

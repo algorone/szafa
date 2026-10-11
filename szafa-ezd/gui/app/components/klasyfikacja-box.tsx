@@ -19,23 +19,36 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Check, Info, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useKlasyfikacja } from "@/lib/klasyfikacja";
 import { useRefresh } from "@/lib/refresher";
+import { getJoList, getLataList } from "../actions";
 
 
 export function KlasyfikacjaBox(){
 
+    const [panding, setTransition] = useTransition()
     const [jo,setJo]= useState('')
     const [rwa,setRwa] = useState('')
     const [grupa, setGrupa] =useState('')
     const [rok, setRok] =useState('')
     const [haslo, setHaslo] =useState('')
     const [klasyfikacja, setKlasysfikacja] = useKlasyfikacja()
-     const [refresh, setRefresh] = useRefresh()
+    const [refresh, setRefresh] = useRefresh()
+    const [joList, setJoList] = useState<any>(null)
+    const [lataList, setLataList] = useState<any>(null)
 
     useEffect(()=>{
+        setTransition(async ()=>{
+            const dane = await getJoList()
+            setJoList(dane)
+            const dane2 = await getLataList()
+            setLataList(dane2)
+        })
+    },[])
+    
 
+    useEffect(()=>{
         if (!klasyfikacja || typeof klasyfikacja !== 'string') return
         const [glownaCzesc, podaneHaslo] = klasyfikacja.split('#')
         const [podaneJo, podaneRwa, podanaGrupa, podanyRok] = glownaCzesc.split('.')
@@ -73,9 +86,10 @@ export function KlasyfikacjaBox(){
                             <SelectValue placeholder="--" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="FP">FP</SelectItem>
-                            <SelectItem value="SI">SI</SelectItem>
-                            <SelectItem value="ZE">ZE</SelectItem>
+                            {(joList!=null)&&joList.map((kod:any)=>
+                               <SelectItem value={kod.jo}>{kod.jo}</SelectItem>
+                            )}
+
                         </SelectContent>
                     </Select>
                     <div className="px-2"> . </div>
@@ -93,8 +107,9 @@ export function KlasyfikacjaBox(){
                             <SelectValue placeholder="--" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="2026">2026</SelectItem>
-                            <SelectItem value="2027">2027</SelectItem>
+                            {(lataList!=null)&&lataList.map((kod:any)=>
+                               <SelectItem value={kod.rok}>{kod.rok}</SelectItem>
+                            )}
                         </SelectContent>
                     </Select>
                     <div className="px-4"> hasło: </div>
